@@ -1,0 +1,226 @@
+/* =============================================================================
+ * style.css — Interface du générateur d'étude patrimoniale (charte Hexa)
+ * ========================================================================== */
+:root {
+  --petrol: #005159;
+  --petrol-dk: #003b41;
+  --petrol-lt: #1b6b7c;
+  --teal: #5ba5b8;
+  --teal-pale: #d6edf0;
+  --gold: #d4af37;
+  --gold-dk: #b8941f;
+  --ink: #1f2937;
+  --slate: #334155;
+  --slate-lt: #64748b;
+  --line: #e2e8f0;
+  --mist: #f7fafa;
+  --paper: #ffffff;
+  --green: #1a7a4a;
+  --red: #c0392b;
+  --shadow: 0 1px 3px rgba(15, 40, 45, .08), 0 6px 18px rgba(15, 40, 45, .06);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Open Sans", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: var(--slate);
+  background: #eef3f4;
+  line-height: 1.5;
+}
+h1, h2, h3, summary, .btn, label.field-label, .list-title, .subgroup-title { font-family: "Montserrat", system-ui, sans-serif; }
+
+/* ---------- App bar ---------- */
+.appbar { background: var(--petrol); color: #fff; border-bottom: 4px solid var(--gold); }
+.appbar-inner { max-width: 1280px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 18px; }
+.appbar-logo { height: 46px; width: auto; background: #fff; border-radius: 10px; padding: 5px 10px; }
+.appbar-brand { display: flex; align-items: center; gap: 10px; }
+.appbar-mark { width: 40px; height: 40px; border-radius: 9px; background: #fff; color: var(--petrol); font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 2px var(--gold); }
+.appbar-word { font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 20px; color: #fff; letter-spacing: .5px; }
+.appbar-titles h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: .2px; }
+.appbar-titles p { margin: 2px 0 0; font-size: 13px; color: var(--teal-pale); }
+
+/* ---------- Toolbar ---------- */
+.toolbar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
+.toolbar-inner { max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.spacer { flex: 1 1 auto; }
+.save-state { font-size: 12.5px; color: var(--slate-lt); }
+.save-state.saved { color: var(--green); font-weight: 600; }
+.gen-msg { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.gen-msg:not(:empty) { padding: 8px 24px 12px; }
+.gen-msg .ok { color: var(--green); font-size: 14px; }
+.gen-msg .err { color: var(--red); font-size: 14px; }
+
+/* ---------- Buttons ---------- */
+.btn { font-size: 13.5px; font-weight: 600; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--line); background: #fff; color: var(--petrol); cursor: pointer; transition: .15s; }
+.btn:hover { border-color: var(--petrol-lt); background: var(--mist); }
+.btn-primary { background: var(--petrol); color: #fff; border-color: var(--petrol); box-shadow: 0 3px 10px rgba(0, 81, 89, .25); }
+.btn-primary:hover { background: var(--petrol-dk); border-color: var(--petrol-dk); }
+.btn-primary:disabled { opacity: .6; cursor: progress; }
+.btn-ghost { color: var(--slate-lt); }
+.btn-mini { font-family: "Montserrat", sans-serif; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 7px; border: 1px solid var(--line); background: #fff; color: var(--petrol); cursor: pointer; }
+.btn-mini:hover { background: var(--mist); border-color: var(--petrol-lt); }
+
+/* ---------- Layout ---------- */
+.layout { max-width: 1280px; margin: 22px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
+.col-form { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+@media (max-width: 980px) { .layout { grid-template-columns: 1fr; } .col-side { order: -1; } }
+
+/* ---------- Panels ---------- */
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fff, var(--mist)); }
+.panel-head h2 { margin: 0; font-size: 16px; color: var(--petrol); font-weight: 700; }
+.panel-hint { margin: 0; padding: 12px 18px 0; font-size: 12.5px; color: var(--slate-lt); }
+.panel-sticky { position: sticky; top: 78px; }
+.badge { background: var(--gold); color: #fff; font-family: "Montserrat"; font-weight: 700; font-size: 12px; padding: 4px 11px; border-radius: 20px; }
+
+/* ---------- Form ---------- */
+.form { padding: 8px 10px 14px; }
+details.section { border: 1px solid var(--line); border-radius: 10px; margin: 8px; overflow: hidden; }
+details.section[open] { box-shadow: inset 0 0 0 1px rgba(0, 81, 89, .06); }
+summary.section-summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--mist); font-weight: 600; color: var(--petrol); font-size: 14.5px; }
+summary.section-summary::-webkit-details-marker { display: none; }
+.section-icon { width: 26px; height: 26px; display: inline-grid; place-items: center; background: var(--teal-pale); border-radius: 7px; font-size: 14px; }
+.section-name { flex: 1; }
+.section-chevron { color: var(--slate-lt); transition: .2s; }
+details[open] .section-chevron { transform: rotate(180deg); }
+.section-body { padding: 14px 16px; }
+
+.field { margin-bottom: 12px; }
+.field-label { display: block; font-size: 12px; font-weight: 600; color: var(--petrol-lt); margin-bottom: 4px; letter-spacing: .2px; }
+.field-input { width: 100%; font-family: inherit; font-size: 13.5px; color: var(--ink); padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; transition: .15s; }
+.field-input:focus { outline: none; border-color: var(--petrol-lt); box-shadow: 0 0 0 3px rgba(91, 165, 184, .18); }
+textarea.field-input { resize: vertical; min-height: 56px; line-height: 1.45; }
+.field-check { display: flex; align-items: center; gap: 8px; }
+.field-check .field-label { margin: 0; }
+
+.subgroup { border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; margin: 10px 0; background: #fcfdfd; }
+.subgroup-title { font-size: 13px; font-weight: 700; color: var(--petrol); margin-bottom: 8px; text-transform: none; }
+.subgroup-body { padding-left: 2px; }
+
+/* ---------- Lists & tables ---------- */
+.list-box { border: 1px solid var(--line); border-radius: 10px; margin: 10px 0; overflow: hidden; }
+.list-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 12px; background: var(--mist); border-bottom: 1px solid var(--line); }
+.list-title { font-size: 13px; font-weight: 700; color: var(--petrol); }
+.list-rows { padding: 10px 12px; display: flex; flex-direction: column; gap: 7px; }
+.list-row { display: flex; gap: 8px; align-items: center; }
+.btn-del { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--line); background: #fff; color: var(--red); cursor: pointer; font-size: 13px; }
+.btn-del:hover { background: #fbeae8; border-color: var(--red); }
+
+.cards-rows { padding: 10px 12px; display: flex; flex-direction: column; gap: 10px; }
+.item-card { border: 1px solid var(--line); border-radius: 10px; background: #fcfdfd; overflow: hidden; }
+.item-card-head { display: flex; align-items: center; justify-content: space-between; padding: 7px 11px; background: var(--teal-pale); font-family: "Montserrat"; font-weight: 700; font-size: 12px; color: var(--petrol); }
+.item-card-body { padding: 11px 12px; }
+
+.table-wrap { overflow-x: auto; padding: 8px; }
+.edit-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.edit-table th { text-align: left; font-family: "Montserrat"; font-weight: 600; font-size: 11px; color: var(--petrol-lt); padding: 6px 6px; border-bottom: 2px solid var(--line); white-space: nowrap; }
+.edit-table td { padding: 4px 5px; vertical-align: top; }
+.edit-table .field-input { padding: 6px 8px; font-size: 12.5px; }
+.edit-table textarea.field-input { min-height: 38px; }
+.edit-table .th-act { width: 36px; }
+/* Colonnes dont le contenu doit rester lisible (sélecteurs longs) ; le tableau défile au besoin */
+.edit-table .col-type { min-width: 170px; }
+.edit-table .col-classe { min-width: 180px; }
+.edit-table .col-designation { min-width: 180px; }
+.edit-table .col-valeur { min-width: 110px; }
+.edit-table .col-beneficiaires { min-width: 200px; }
+.edit-table .col-proprietaire { min-width: 130px; }
+.edit-table .col-rattachement { min-width: 160px; }
+.edit-table .col-assure { min-width: 130px; }
+.edit-table-t th { text-align: center; }
+.edit-table-t th .btn-del-col { width: 20px; height: 20px; padding: 0; line-height: 1; font-size: 11px; margin-left: 6px; vertical-align: middle; }
+.edit-table td.row-label, .edit-table th.row-label { font-family: "Montserrat", sans-serif; font-weight: 600; font-size: 11px; color: var(--petrol); background: var(--mist); white-space: nowrap; text-align: left; vertical-align: middle; }
+.cell-na { font-size: 12px; color: var(--slate-lt); font-style: italic; text-align: center; padding: 6px 4px; }
+
+/* ---------- Valeurs calculées (lecture seule) ---------- */
+.computed-box { margin-top: 12px; border: 1px solid var(--teal); border-radius: 10px; background: linear-gradient(180deg, #f2fbfc, var(--teal-pale)); padding: 10px 12px; }
+.comp-title { font-family: "Montserrat", sans-serif; font-size: 11px; font-weight: 700; color: var(--petrol); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 8px; }
+.comp-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.comp-item { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 11px; min-width: 120px; }
+.comp-k { font-size: 10.5px; color: var(--slate-lt); }
+.comp-v { font-family: "Montserrat", sans-serif; font-size: 14px; font-weight: 700; color: var(--petrol); }
+.comp-sentence { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 11px; font-size: 13px; color: var(--petrol); font-weight: 600; margin-bottom: 6px; }
+.comp-sub { font-family: "Montserrat", sans-serif; font-size: 11px; font-weight: 700; color: var(--gold-dk, #9a7b1f); text-transform: uppercase; letter-spacing: .3px; margin: 10px 0 6px; }
+.comp-succ-block { margin-bottom: 12px; }
+.computed-box .table-wrap { margin-bottom: 6px; }
+.computed-box .edit-table td { font-size: 12px; padding: 5px 8px; color: var(--slate); }
+.diag-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 620px) { .diag-cols { grid-template-columns: 1fr; } }
+.diag-col { background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; }
+.diag-head { font-family: "Montserrat", sans-serif; font-weight: 700; font-size: 12.5px; margin-bottom: 6px; }
+.diag-green .diag-head { color: var(--green); }
+.diag-red .diag-head { color: var(--red); }
+.diag-item { font-size: 12px; color: var(--slate); padding: 3px 0 3px 14px; position: relative; line-height: 1.35; }
+.diag-green .diag-item::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+.diag-red .diag-item::before { content: "•"; position: absolute; left: 2px; color: var(--red); font-weight: 700; }
+
+/* ---------- Modules ---------- */
+.modules { padding: 12px 18px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 620px) { .modules { grid-template-columns: 1fr; } }
+.module-toggle { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; font-size: 13px; color: var(--slate); transition: .15s; }
+.module-toggle:hover { background: var(--mist); border-color: var(--petrol-lt); }
+.module-toggle input { width: 17px; height: 17px; accent-color: var(--petrol); }
+.module-cat { grid-column: 1 / -1; font-family: "Montserrat", sans-serif; font-weight: 700; font-size: 11px; letter-spacing: .5px; text-transform: uppercase; color: var(--petrol); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+.module-cat:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+/* ---------- Outline ---------- */
+.outline { padding: 8px 10px 14px; max-height: 70vh; overflow-y: auto; }
+.outline-row { display: flex; gap: 9px; align-items: baseline; padding: 4px 8px; border-radius: 6px; font-size: 12.5px; }
+.outline-row:hover { background: var(--mist); }
+.outline-num { flex: 0 0 22px; text-align: right; color: var(--slate-lt); font-family: "Montserrat"; font-size: 11px; }
+.outline-title { color: var(--slate); }
+.outline-divider { margin-top: 6px; }
+.outline-divider .outline-title { font-weight: 700; color: var(--petrol); }
+
+/* ---------- Champ photo du conseiller ---------- */
+.photo-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.photo-preview { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--line); background: var(--mist); }
+.logo-preview { width: 96px; height: 52px; object-fit: contain; border: 1px solid var(--line); border-radius: 6px; background: #fff; padding: 3px; }
+.field-hint { font-size: 11px; color: var(--slate-lt); margin-top: 5px; }
+
+/* ---------- Footer ---------- */
+.appfoot { max-width: 1280px; margin: 10px auto 40px; padding: 0 24px; }
+.appfoot p { font-size: 11.5px; color: var(--slate-lt); line-height: 1.5; }
+.appfoot-copy { font-family: "Montserrat", sans-serif; font-weight: 700; color: var(--petrol) !important; font-size: 12.5px !important; margin-bottom: 4px; }
+
+/* ---------- Couche SaaS Kapaudit (connexion + tableau de bord) ---------- */
+/* Chargée par hexa-saas.js uniquement en mode cloud ; absente du fichier autonome. */
+.saas-overlay { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #00343a, var(--petrol)); overflow: auto; }
+.saas-card { background: #fff; border-radius: 16px; box-shadow: 0 24px 70px rgba(0, 0, 0, .35); padding: 26px; width: 100%; max-width: 380px; display: flex; flex-direction: column; gap: 12px; }
+.saas-card-wide { max-width: 760px; }
+.saas-brand { display: flex; align-items: center; gap: 10px; }
+.saas-mark { width: 40px; height: 40px; border-radius: 9px; background: var(--petrol); color: #fff; font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 2px var(--gold); }
+.saas-word { font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 22px; color: var(--petrol); }
+.saas-sub { color: var(--slate-lt); font-size: 13px; margin: 0; }
+.saas-muted { color: var(--slate-lt); font-size: 13px; padding: 10px 2px; }
+.saas-input { padding: 11px 13px; border: 1px solid var(--line); border-radius: 9px; font-size: 14px; font-family: inherit; }
+.saas-input:focus { outline: none; border-color: var(--petrol-lt); box-shadow: 0 0 0 3px rgba(27, 107, 124, .15); }
+.saas-btn { font-family: "Montserrat", sans-serif; font-size: 13.5px; font-weight: 600; padding: 10px 16px; border-radius: 9px; border: 1px solid var(--line); background: #fff; color: var(--petrol); cursor: pointer; transition: .15s; white-space: nowrap; }
+.saas-btn:hover { background: var(--mist); border-color: var(--petrol-lt); }
+.saas-btn-block { width: 100%; }
+.saas-btn-primary { background: var(--petrol); color: #fff; border-color: var(--petrol); }
+.saas-btn-primary:hover { background: var(--petrol-dk); border-color: var(--petrol-dk); }
+.saas-btn-gold { background: var(--gold); color: #3a2f00; border-color: var(--gold); }
+.saas-btn-gold:hover { background: var(--gold-dk); border-color: var(--gold-dk); }
+.saas-btn-ghost { color: var(--red); }
+.saas-btn-ghost:hover { background: #fbecea; border-color: var(--red); }
+.saas-btn-light { background: rgba(255, 255, 255, .14); color: #fff; border-color: rgba(255, 255, 255, .35); }
+.saas-btn-light:hover { background: rgba(255, 255, 255, .26); }
+.saas-link { background: none; border: none; color: var(--petrol-lt); font-size: 12.5px; cursor: pointer; text-decoration: underline; padding: 2px; align-self: flex-start; }
+.saas-msg { font-size: 13px; min-height: 18px; }
+.saas-msg.saas-ok { color: var(--green); }
+.saas-msg.saas-err { color: var(--red); }
+.saas-dash-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.saas-spacer { flex: 1 1 auto; }
+.saas-banner { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: var(--teal-pale); border: 1px solid var(--teal); border-radius: 11px; padding: 12px 14px; }
+.saas-banner-msg { flex: 1 1 260px; font-size: 13.5px; color: var(--petrol-dk); }
+.saas-list { display: flex; flex-direction: column; gap: 8px; max-height: 52vh; overflow: auto; margin-top: 2px; }
+.saas-row { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 11px; padding: 10px 12px; }
+.saas-row:hover { border-color: var(--petrol-lt); background: var(--mist); }
+.saas-row-main { flex: 1 1 auto; min-width: 0; }
+.saas-row-title { font-family: "Montserrat", sans-serif; font-weight: 700; color: var(--ink); font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saas-row-sub { font-size: 12px; color: var(--slate-lt); }
+.saas-bar { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.saas-bar-email { color: #fff; font-size: 12.5px; opacity: .9; }
+@media (max-width: 620px) { .saas-row { flex-wrap: wrap; } .saas-bar-email { display: none; } }
