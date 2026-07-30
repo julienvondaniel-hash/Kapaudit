@@ -39,7 +39,7 @@ for name in order:
 # seraient des références externes mortes hors ligne ; l'app tourne en localStorage.
 html = html.replace(
     '  <!-- Couche cloud (SaaS) : inerte tant que hexa-config.js est vide ; retirée du fichier autonome. -->\n', "")
-for name in ("hexa-config.js", "hexa-cloud.js"):
+for name in ("hexa-config.js", "hexa-cloud.js", "hexa-saas.js"):
     tag = '<script src="js/%s"></script>' % name
     html = html.replace("  " + tag + "\n", "").replace(tag + "\n", "").replace(tag, "")
 
