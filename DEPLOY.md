@@ -16,6 +16,7 @@ tableau de bord des dossiers dans l'app (Phase D)** est l'étape suivante.
 | `.env.example` | Modèle des variables d'environnement (valeurs → Vercel) | racine |
 | `docs/js/hexa-config.js` | Config front PUBLIQUE (URL + clés publiques) | front |
 | `docs/js/hexa-cloud.js` | Couche cloud (auth, dossiers, crédits, paiement) — inerte tant que non configurée | front |
+| `docs/js/hexa-saas.js` | Interface SaaS : écran de connexion + tableau de bord des dossiers + crédits | front |
 
 > Les clés **secrètes** (`service_role`, `sk_…`, `whsec_…`) ne figurent **jamais** dans le
 > dépôt : elles se saisissent dans **Vercel → Environment Variables** (cf. `.env.example`).
@@ -60,12 +61,23 @@ window.HEXA_CONFIG = {
 - Acheter un crédit avec une **carte de test Stripe** → vérifier que le webhook ajoute le crédit.
 - Créer un dossier → le solde diminue de 1 ; générer PPTX/livret (illimité).
 
-## Phase D (prochaine étape de développement)
-Câbler dans l'application : chargement de `hexa-config.js` + `hexa-cloud.js` dans
-`docs/index.html`, **page de connexion**, **tableau de bord des dossiers** (liste / ouvrir /
-nouveau / enregistrer / supprimer), **solde de crédits** + bouton **« Acheter (50 € HT) »**,
-et bascule `localStorage → HexaCloud`. À faire une fois Supabase/Stripe en place et testable
-dans le navigateur.
+## Phase D — interface SaaS (faite)
+Câblée dans l'application (`docs/index.html` charge `hexa-config.js` + `hexa-cloud.js` +
+`hexa-saas.js` après `app.js`) :
+- **écran de connexion** (Supabase Auth, comptes sur invitation) ;
+- **tableau de bord « Mes dossiers »** : lister / ouvrir / nouveau / supprimer, avec
+  **enregistrement cloud automatique** (différé) du dossier ouvert ;
+- **bandeau essai gratuit + solde de crédits** et bouton **« Acheter (50 € HT) »**.
+
+Le mode cloud ne s'active que si `hexa-config.js` est renseigné ; sinon l'app reste en mode
+local (localStorage). Le **fichier autonome** reste 100 % local — les scripts cloud en sont
+retirés par `build_standalone.py`.
+
+Reste à finaliser pour la mise en production :
+1. **Stripe** : renseigner `stripePublishableKey` (`pk_…`) dans `hexa-config.js` et le
+   `STRIPE_PRICE_ID` côté Vercel pour activer le bouton d'achat (inutile pendant l'essai 30 j).
+2. **Recette navigateur** : inviter un utilisateur (Authentication → Users → Invite), se
+   connecter, créer / ouvrir un dossier, générer PPTX + livret, tester l'achat (carte de test).
 
 ## Rappel conformité
 Hébergement UE, RGPD (responsable de traitement, information des clients, DPA Supabase/Vercel/
