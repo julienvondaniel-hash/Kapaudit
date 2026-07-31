@@ -14,6 +14,8 @@
  *   HexaCloud.ready()            -> Promise (SDK chargé + client prêt)
  *   HexaCloud.signIn(email,pwd)  -> Promise({ user }) | rejette
  *   HexaCloud.signOut()          -> Promise
+ *   HexaCloud.resetPassword(email,redirectTo) -> Promise (envoi e-mail de réinit.)
+ *   HexaCloud.updatePassword(pwd)-> Promise (définit un nouveau mot de passe)
  *   HexaCloud.currentUser()      -> Promise(user | null)
  *   HexaCloud.onAuth(cb)         -> abonnement aux changements de session
  *   HexaCloud.listEtudes()       -> Promise([{id,client,titre,updated_at}])
@@ -65,6 +67,19 @@
     });
   }
   function signOut() { return client().then(function (c) { return c.auth.signOut(); }); }
+  // Envoie l'e-mail de réinitialisation ; redirectTo = URL de retour du lien.
+  function resetPassword(email, redirectTo) {
+    return client().then(function (c) {
+      var opts = redirectTo ? { redirectTo: redirectTo } : undefined;
+      return c.auth.resetPasswordForEmail(email, opts).then(function (r) { if (r.error) throw r.error; return true; });
+    });
+  }
+  // Définit un nouveau mot de passe (nécessite la session de récupération active).
+  function updatePassword(newPassword) {
+    return client().then(function (c) {
+      return c.auth.updateUser({ password: newPassword }).then(function (r) { if (r.error) throw r.error; return r.data; });
+    });
+  }
   function currentUser() {
     return client().then(function (c) { return c.auth.getUser().then(function (r) { return (r.data && r.data.user) || null; }); });
   }
@@ -152,7 +167,8 @@
   window.HexaCloud = {
     enabled: enabled,
     ready: ensureSdk,
-    signIn: signIn, signOut: signOut, currentUser: currentUser, onAuth: onAuth,
+    signIn: signIn, signOut: signOut, resetPassword: resetPassword, updatePassword: updatePassword,
+    currentUser: currentUser, onAuth: onAuth,
     listEtudes: listEtudes, getEtude: getEtude, createEtude: createEtude,
     saveEtude: saveEtude, removeEtude: removeEtude,
     creditBalance: creditBalance, accessStatus: accessStatus, buyCredits: buyCredits
