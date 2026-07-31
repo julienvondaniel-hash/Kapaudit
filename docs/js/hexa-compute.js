@@ -192,7 +192,7 @@
       return "Immobilier de jouissance";
     }
     var cash = CASH_TYPES;
-    var titres = { "PEA": 1, "PEA-PME": 1, "FCPR": 1, "FCPI": 1, "Club Deal": 1, "Contrat de capitalisation": 1 };
+    var titres = { "PEA": 1, "PEA-PME": 1, "FCPR": 1, "FCPI": 1, "Club Deal": 1, "Contrat de capitalisation": 1, "FIP": 1, "FIP Corse": 1, "FIP outre-mer": 1, "GFF": 1, "GFV": 1, "GFA": 1 };
     if (a.type === "Assurance-vie") return "Assurance-vie";
     if (a.type === "PER") return "Épargne retraite";
     if (cash[a.type]) return "Liquidités";
