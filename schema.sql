@@ -14,8 +14,11 @@ create table if not exists public.profiles (
   id                 uuid primary key references auth.users(id) on delete cascade,
   email              text,
   stripe_customer_id text,
+  trial_ends_at      timestamptz not null default (now() + interval '30 days'),  -- essai gratuit 30 jours
   created_at         timestamptz not null default now()
 );
+-- Ajout de la colonne d'essai si la table existait déjà (re-run idempotent).
+alter table public.profiles add column if not exists trial_ends_at timestamptz not null default (now() + interval '30 days');
 alter table public.profiles enable row level security;
 drop policy if exists profiles_self on public.profiles;
 create policy profiles_self on public.profiles for select using (id = auth.uid());
@@ -119,21 +122,40 @@ create policy etudes_update_own on public.etudes for update using (owner = auth.
 create policy etudes_delete_own on public.etudes for delete using (owner = auth.uid());
 -- PAS de policy INSERT : la création passe par create_etude() (consomme 1 crédit).
 
--- Création d'un dossier = consommation atomique d'1 crédit.
+-- Création d'un dossier :
+--   - pendant l'essai gratuit (< trial_ends_at) : GRATUIT, aucun crédit consommé ;
+--   - après l'essai : consomme 1 crédit (atomique) ; sinon erreur ACCES_REQUIS.
 create or replace function public.create_etude(p_client text, p_titre text, p_data jsonb)
 returns uuid language plpgsql security definer set search_path = public as $$
-declare v_id uuid; v_bal int;
+declare v_id uuid; v_bal int; v_trial boolean;
 begin
   if auth.uid() is null then raise exception 'NON_AUTHENTIFIE'; end if;
+  select (trial_ends_at > now()) into v_trial from public.profiles where id = auth.uid();
+  v_trial := coalesce(v_trial, false);
   select public.credit_balance(auth.uid()) into v_bal;
-  if v_bal < 1 then raise exception 'CREDIT_INSUFFISANT'; end if;
+  if (not v_trial) and v_bal < 1 then
+    raise exception 'ACCES_REQUIS';   -- essai terminé ET aucun crédit
+  end if;
   insert into public.etudes(owner, client, titre, data)
     values (auth.uid(), p_client, p_titre, coalesce(p_data, '{}'::jsonb))
     returning id into v_id;
-  insert into public.credit_ledger(owner, delta, reason, ref)
-    values (auth.uid(), -1, 'creation_dossier', v_id::text);
+  if not v_trial then                 -- hors essai : on débite 1 crédit
+    insert into public.credit_ledger(owner, delta, reason, ref)
+      values (auth.uid(), -1, 'creation_dossier', v_id::text);
+  end if;
   return v_id;
 end; $$;
+
+-- État d'accès de l'utilisateur courant (pour le tableau de bord) :
+-- { trial_ends_at, trial_active, credits }.
+create or replace function public.access_status()
+returns json language sql stable security definer set search_path = public as $$
+  select json_build_object(
+    'trial_ends_at', (select trial_ends_at from public.profiles where id = auth.uid()),
+    'trial_active',  (select (trial_ends_at > now()) from public.profiles where id = auth.uid()),
+    'credits',       public.credit_balance(auth.uid())
+  );
+$$;
 
 -- (Optionnel) offrir des crédits de test à un utilisateur, depuis le SQL Editor :
 --   insert into public.credit_ledger(owner, delta, reason) values ('<uuid_user>', 3, 'offert');
