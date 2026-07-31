@@ -279,6 +279,13 @@
     COLORS: COLORS, FONT: FONT, PAGE: PAGE, M: M, CONTENT: CONTENT,
     HEAD_Y: HEAD_Y, BODY_TOP: BODY_TOP, FOOT_Y: FOOT_Y, COPYRIGHT: COPYRIGHT, brand: BRAND, setBrand: setBrand,
     fill: fill, rule: rule, card: card, pill: pill, header: header, footer: footer, logoTopRight: logoTopRight,
-    standardSlide: standardSlide, divider: divider, cardGrid: cardGrid, kpi: kpi
+    standardSlide: standardSlide, divider: divider, cardGrid: cardGrid, kpi: kpi,
+    // Rubriques masquables (version « étude patrimoniale » épurée). true = rubrique
+    // retirée du formulaire, du PPTX et du livret. Fonctions conservées dans le code,
+    // simplement désactivées. « Contexte & avertissement » (mention légale) reste
+    // visible ; ajouter sa clé à true pour la masquer aussi.
+    HIDDEN: { arbitrage: true, donationsEnvisagees: true, reinvestissements: true, planAction: true, synthese: true },
+    shows: function (key) { return !this.HIDDEN[key]; },
+    showsPreco: function () { return this.shows("arbitrage") || this.shows("donationsEnvisagees") || this.shows("reinvestissements"); }
   };
 })();
