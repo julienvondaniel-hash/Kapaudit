@@ -43,7 +43,7 @@
     { t: "▸ Section 2.1 — Audit successoral", d: 1 }, { t: "Abattements de donation", m: "successoral" }, { t: "Réserve & quotité disponible" }, { t: "1er décès — Monsieur" }, { t: "1er décès — Madame" }, { t: "Donations & capacité en franchise", cond: function (d) { var enf = ((d.foyer && d.foyer.membres) || []).some(function (mb) { return mb.qualite === "Enfant"; }); return ((d.donations) || []).length > 0 || enf; } },
     { t: "Démembrement en 3 étapes", m: "successoral" }, { t: "Barème usufruit / NP", m: "successoral" },
     { t: "▸ Section 3 — Objectifs", d: 1 }, { t: "Objectifs hiérarchisés" },
-    { t: "▸ Section 4 — Préconisations", d: 1 }, { t: "Arbitrage — Immobilier" }, { t: "Arbitrage — Patrimoine mobilier" }, { t: "Suivi des plafonds & marges" }, { t: "Préconisations personnalisées" }, { t: "Stratégie de donation" }, { t: "Réinvestissement du capital" }, { t: "Scénarios de réemploi comparés", cond: function (d) { try { return (window.HexaCompute.scenariosAllocation(d) || []).length > 0; } catch (e) { return false; } } },
+    { t: "▸ Section 4 — Préconisations", d: 1, sec: "preco" }, { t: "Arbitrage — Immobilier", sec: "arbitrage" }, { t: "Arbitrage — Patrimoine mobilier", sec: "arbitrage" }, { t: "Suivi des plafonds & marges", sec: "arbitrage" }, { t: "Préconisations personnalisées", sec: "arbitrage" }, { t: "Stratégie de donation", sec: "donationsEnvisagees" }, { t: "Réinvestissement du capital", sec: "reinvestissements" }, { t: "Scénarios de réemploi comparés", sec: "reinvestissements", cond: function (d) { try { return (window.HexaCompute.scenariosAllocation(d) || []).length > 0; } catch (e) { return false; } } },
     { t: "PER — l'essentiel", m: "per" },
     { t: "AV française — l'essentiel", m: "assuranceVie" },
     { t: "AV luxembourgeoise — l'essentiel", m: "assuranceVieLux" },
@@ -52,7 +52,7 @@
     { t: "PEA-PME — l'essentiel", m: "peapme" },
     { t: "FCPR — l'essentiel", m: "fcpr" },
     { t: "SCI à l'IS — l'essentiel", m: "sciIs" },
-    { t: "▸ Section 5 — Plan d'action", d: 1 }, { t: "Plan d'action" },
+    { t: "▸ Section 5 — Plan d'action", d: 1, sec: "planAction" }, { t: "Plan d'action", sec: "planAction" },
     { t: "Suivi & prochaines étapes", m: "suivi" },
     { t: "Merci" }
   ];
@@ -64,6 +64,7 @@
     var n = 0;
     OUTLINE.forEach(function (o) {
       if (o.m && mods[o.m] === false) return;
+      if (o.sec && window.HEXA) { var vis = o.sec === "preco" ? window.HEXA.showsPreco() : window.HEXA.shows(o.sec); if (!vis) return; }
       if (o.cond && !o.cond(state.data)) return;
       n++;
       var row = el("div", "outline-row" + (o.d ? " outline-divider" : ""));
