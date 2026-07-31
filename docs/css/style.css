@@ -32,7 +32,7 @@ h1, h2, h3, summary, .btn, label.field-label, .list-title, .subgroup-title { fon
 
 /* ---------- App bar ---------- */
 .appbar { background: var(--petrol); color: #fff; border-bottom: 4px solid var(--gold); }
-.appbar-inner { max-width: 1280px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 18px; }
+.appbar-inner { max-width: min(1680px, 95vw); margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 18px; }
 .appbar-logo { height: 46px; width: auto; background: #fff; border-radius: 10px; padding: 5px 10px; }
 .appbar-brand { display: flex; align-items: center; gap: 10px; }
 .appbar-mark { width: 40px; height: 40px; border-radius: 9px; background: #fff; color: var(--petrol); font-family: "Montserrat", sans-serif; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 2px var(--gold); }
@@ -42,11 +42,11 @@ h1, h2, h3, summary, .btn, label.field-label, .list-title, .subgroup-title { fon
 
 /* ---------- Toolbar ---------- */
 .toolbar { position: sticky; top: 0; z-index: 20; background: #fff; border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
-.toolbar-inner { max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.toolbar-inner { max-width: min(1680px, 95vw); margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .spacer { flex: 1 1 auto; }
 .save-state { font-size: 12.5px; color: var(--slate-lt); }
 .save-state.saved { color: var(--green); font-weight: 600; }
-.gen-msg { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+.gen-msg { max-width: min(1680px, 95vw); margin: 0 auto; padding: 0 24px; }
 .gen-msg:not(:empty) { padding: 8px 24px 12px; }
 .gen-msg .ok { color: var(--green); font-size: 14px; }
 .gen-msg .err { color: var(--red); font-size: 14px; }
@@ -62,7 +62,7 @@ h1, h2, h3, summary, .btn, label.field-label, .list-title, .subgroup-title { fon
 .btn-mini:hover { background: var(--mist); border-color: var(--petrol-lt); }
 
 /* ---------- Layout ---------- */
-.layout { max-width: 1280px; margin: 22px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
+.layout { max-width: min(1680px, 95vw); margin: 22px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 340px; gap: 22px; align-items: start; }
 .col-form { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
 @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } .col-side { order: -1; } }
 
@@ -180,7 +180,7 @@ textarea.field-input { resize: vertical; min-height: 56px; line-height: 1.45; }
 .field-hint { font-size: 11px; color: var(--slate-lt); margin-top: 5px; }
 
 /* ---------- Footer ---------- */
-.appfoot { max-width: 1280px; margin: 10px auto 40px; padding: 0 24px; }
+.appfoot { max-width: min(1680px, 95vw); margin: 10px auto 40px; padding: 0 24px; }
 .appfoot p { font-size: 11.5px; color: var(--slate-lt); line-height: 1.5; }
 .appfoot-copy { font-family: "Montserrat", sans-serif; font-weight: 700; color: var(--petrol) !important; font-size: 12.5px !important; margin-bottom: 4px; }
 
