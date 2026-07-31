@@ -23,6 +23,7 @@
   var access = null;         // { trial_ends_at, trial_active, credits }
   var lastUid = undefined;   // déduplique les événements d'authentification
   var saveTimer = null;
+  var recovering = false;    // true pendant un lien e-mail de réinitialisation
 
   // ---------------------------------------------------------------- helpers --
   function $(id) { return document.getElementById(id); }
@@ -67,6 +68,7 @@
   var gate, gateEmail, gatePwd, gateMsg;
   var dash, dashList, banner;
   var bar, barEmail;
+  var recov, recovPwd, recovMsg;
 
   function buildGate() {
     gateEmail = h("input", { type: "email", class: "saas-input", placeholder: "adresse e-mail", autocomplete: "username" });
@@ -82,6 +84,20 @@
     ]);
     gate = h("div", { class: "saas-overlay", id: "saasGate" }, [card]);
     document.body.appendChild(gate);
+  }
+
+  function buildRecovery() {
+    recovPwd = h("input", { type: "password", class: "saas-input", placeholder: "nouveau mot de passe (8 caractères min.)", autocomplete: "new-password" });
+    recovMsg = h("div", { class: "saas-msg" });
+    var card = h("form", { class: "saas-card", onsubmit: function (ev) { ev.preventDefault(); doUpdatePassword(); } }, [
+      brandRow("Kapaudit"),
+      h("p", { class: "saas-sub", text: "Définissez votre nouveau mot de passe." }),
+      recovPwd,
+      h("button", { type: "submit", class: "saas-btn saas-btn-primary saas-btn-block", text: "Enregistrer le mot de passe" }),
+      recovMsg
+    ]);
+    recov = h("div", { class: "saas-overlay", id: "saasRecov" }, [card]);
+    document.body.appendChild(recov);
   }
 
   function buildDash() {
@@ -114,6 +130,7 @@
   // ------------------------------------------------------------ affichage ----
   function showGate() { if (gate) gate.style.display = "flex"; if (dash) dash.style.display = "none"; if (bar) bar.style.display = "none"; }
   function hideOverlays() { if (gate) gate.style.display = "none"; if (dash) dash.style.display = "none"; }
+  function showRecovery() { if (recov) recov.style.display = "flex"; if (gate) gate.style.display = "none"; if (dash) dash.style.display = "none"; if (bar) bar.style.display = "none"; }
   function openDash() { if (dash) { dash.style.display = "flex"; } updateCloseBtn(); refreshDash(); }
   function updateCloseBtn() { var c = $("saasClose"); if (c) c.style.display = currentId ? "" : "none"; }
 
@@ -185,9 +202,25 @@
   function doReset() {
     var em = gateEmail.value.trim();
     if (!em) { gateMsg.textContent = "Saisissez d'abord votre e-mail."; gateMsg.className = "saas-msg saas-err"; return; }
-    Cloud.ready().then(function (c) { return c.auth.resetPasswordForEmail(em); })
+    gateMsg.textContent = "Envoi…"; gateMsg.className = "saas-msg";
+    Cloud.resetPassword(em, window.location.origin)
       .then(function () { gateMsg.textContent = "Si un compte existe, un e-mail de réinitialisation vient d'être envoyé."; gateMsg.className = "saas-msg saas-ok"; })
       .catch(function (e) { gateMsg.textContent = friendly(e); gateMsg.className = "saas-msg saas-err"; });
+  }
+
+  // Lien e-mail de réinitialisation : Supabase renvoie #type=recovery + session.
+  function isRecovery() { return /type=recovery/.test(window.location.hash || ""); }
+  function doUpdatePassword() {
+    var p = recovPwd.value || "";
+    if (p.length < 8) { recovMsg.textContent = "8 caractères minimum."; recovMsg.className = "saas-msg saas-err"; return; }
+    recovMsg.textContent = "Enregistrement…"; recovMsg.className = "saas-msg";
+    Cloud.updatePassword(p).then(function () {
+      recovMsg.textContent = "Mot de passe mis à jour ✓"; recovMsg.className = "saas-msg saas-ok";
+      try { history.replaceState(null, "", window.location.pathname + window.location.search); } catch (e) {}
+      recovering = false; lastUid = undefined;
+      if (recov) recov.style.display = "none";
+      Cloud.currentUser().then(onAuth).catch(function () { onAuth(null); });
+    }).catch(function (e) { recovMsg.textContent = friendly(e); recovMsg.className = "saas-msg saas-err"; });
   }
 
   function doSignOut() {
@@ -259,6 +292,7 @@
 
   // ------------------------------------------------------------ auth flow ----
   function onAuth(user) {
+    if (recovering) return;                // en cours de réinitialisation : ne pas router
     var uid = user ? user.id : null;
     if (uid === lastUid) return;           // pas de changement réel
     lastUid = uid;
@@ -285,10 +319,11 @@
   }
 
   function init() {
-    buildBar(); buildGate(); buildDash();
+    buildBar(); buildGate(); buildRecovery(); buildDash();
     updateFooter();
     if (App && App.subscribe) App.subscribe(scheduleSave);
-    showGate();                            // masque l'app tant que l'auth n'est pas connue
+    recovering = isRecovery();             // arrivé via un lien de réinitialisation ?
+    if (recovering) showRecovery(); else showGate();
     Cloud.onAuth(onAuth);                  // changements de session (connexion / déconnexion)
     Cloud.currentUser().then(onAuth).catch(function () { onAuth(null); });
   }
