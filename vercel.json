@@ -1,8 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "outputDirectory": "docs",
-  "cleanUrls": true,
-  "functions": {
-    "api/*.js": { "runtime": "@vercel/node@3" }
-  }
+  "cleanUrls": true
 }
