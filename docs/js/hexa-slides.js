@@ -298,7 +298,7 @@
     var cy = o.body.y + kh + 0.25, chH = o.body.h - kh - 0.25;
     // Répartition croisée : un empilement par détenteur, ventilé par type d'actif.
     var abt = K.assetByHolderType(a);
-    // 7 catégories possibles (le foncier est désormais distinct) → palette ≥ 7 couleurs.
+    // 8 catégories possibles (foncier + épargne retraite distincts) → palette ≥ 8 couleurs.
     var PALETTE = [C.PETROL, C.GOLD_DK, C.PETROL_LT, C.AMBER, C.GREEN, C.SLATE_LT, C.RED, C.GOLD];
     var chartData = abt.categories.map(function (c) {
       return { name: c, labels: abt.holders, values: abt.holders.map(function (h) { return (abt.matrix[h] || {})[c] || 0; }) };
