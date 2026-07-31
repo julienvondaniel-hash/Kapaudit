@@ -120,7 +120,7 @@
     enveloppe: ENVELOPPES
   };
   var IMMO_TYPES = ["Maison", "Appartement", "Immeuble de rapport", "Parking", "Foncier non bâti", "Château", "Manoir", "Étang", "Forêt", "Terre agricole", "Péniche", "Autre"];
-  var AUTRES_TYPES = ["Liquidités", "Compte courant", "Compte à terme", "Livret A", "LDD", "LEP", "Livret Jeune", "PEL", "CEL", "PEA", "PEA-PME", "Compte-titres", "Assurance-vie", "Contrat de capitalisation", "FCPR", "FCPI", "Club Deal", "autre"];
+  var AUTRES_TYPES = ["Liquidités", "Compte courant", "Compte à terme", "Livret A", "LDD", "LEP", "Livret Jeune", "PEL", "CEL", "PEA", "PEA-PME", "Compte-titres", "Assurance-vie", "PER", "Contrat de capitalisation", "FCPR", "FCPI", "Club Deal", "autre"];
   var DONATION_TYPES = ["Don manuel (somme d'argent)", "Avance successorale (rapportable)", "Hors part successorale", "Donation-partage", "Don familial de somme d'argent"];
   var SITUATIONS = ENUMS.situationMaritale;
   var REGIME_MARIAGE = ["Communauté réduite aux acquêts (régime légal)", "Communauté universelle", "Séparation de biens", "Participation aux acquêts"];
@@ -170,11 +170,11 @@
     statutFiscal: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
     prevoyanceDeces: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
     prevoyanceIncapInval: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
-    // Versements : PEA / PEA-PME (capacité de versement) + assurance-vie / capitalisation (primes versées)
-    versements: { on: "type", when: function (t) { return t === "PEA" || t === "PEA-PME" || t === "Assurance-vie" || t === "Contrat de capitalisation"; }, na: "—" },
-    // Assuré & bénéficiaires : seulement pour l'assurance-vie
-    assure: { on: "type", when: function (t) { return t === "Assurance-vie"; }, na: "—" },
-    beneficiaires: { on: "type", when: function (t) { return t === "Assurance-vie"; }, na: "—" }
+    // Versements : PEA / PEA-PME (capacité de versement) + assurance-vie / capitalisation / PER (primes versées)
+    versements: { on: "type", when: function (t) { return t === "PEA" || t === "PEA-PME" || t === "Assurance-vie" || t === "Contrat de capitalisation" || t === "PER"; }, na: "—" },
+    // Assuré & bénéficiaires : assurance-vie et PER (clause bénéficiaire en cas de décès)
+    assure: { on: "type", when: function (t) { return t === "Assurance-vie" || t === "PER"; }, na: "—" },
+    beneficiaires: { on: "type", when: function (t) { return t === "Assurance-vie" || t === "PER"; }, na: "—" }
   };
   // Champs dont la modification re-rend le tableau (pilotent des champs dépendants)
   var CTRL_FIELDS = { situationMaritale: 1, droit: 1, type: 1, qualite: 1, donateur: 1 };
@@ -183,8 +183,8 @@
     else if (field === "qualite") { item.filiation = item.qualite === "Enfant" ? (item.filiation || "Enfant du couple") : ""; }
     else if (field === "droit") { if (item.droit !== "NP") item.ageUsufruitier = ""; }
     else if (field === "type") {
-      if (["PEA", "PEA-PME", "Assurance-vie", "Contrat de capitalisation"].indexOf(item.type) < 0) item.versements = "";
-      if (item.type !== "Assurance-vie") { item.assure = ""; item.beneficiaires = ""; }
+      if (["PEA", "PEA-PME", "Assurance-vie", "Contrat de capitalisation", "PER"].indexOf(item.type) < 0) item.versements = "";
+      if (item.type !== "Assurance-vie" && item.type !== "PER") { item.assure = ""; item.beneficiaires = ""; }
     }
     else if (field === "donateur") {
       // si le bénéficiaire courant devient invalide (= donateur), le réinitialiser
