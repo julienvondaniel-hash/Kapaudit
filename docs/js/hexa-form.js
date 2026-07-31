@@ -120,7 +120,7 @@
     enveloppe: ENVELOPPES
   };
   var IMMO_TYPES = ["Maison", "Appartement", "Immeuble de rapport", "Parking", "Foncier non bâti", "Château", "Manoir", "Étang", "Forêt", "Terre agricole", "Péniche", "Autre"];
-  var AUTRES_TYPES = ["Liquidités", "Compte courant", "Compte à terme", "Livret A", "LDD", "LEP", "Livret Jeune", "PEL", "CEL", "PEA", "PEA-PME", "Compte-titres", "Assurance-vie", "PER", "Contrat de capitalisation", "FCPR", "FCPI", "Club Deal", "autre"];
+  var AUTRES_TYPES = ["Liquidités", "Compte courant", "Compte à terme", "Livret A", "LDD", "LEP", "Livret Jeune", "PEL", "CEL", "PEA", "PEA-PME", "Compte-titres", "Assurance-vie", "PER", "Contrat de capitalisation", "FCPR", "FCPI", "FIP", "FIP Corse", "FIP outre-mer", "GFF", "GFV", "GFA", "Club Deal", "autre"];
   var DONATION_TYPES = ["Don manuel (somme d'argent)", "Avance successorale (rapportable)", "Hors part successorale", "Donation-partage", "Don familial de somme d'argent"];
   var SITUATIONS = ENUMS.situationMaritale;
   var REGIME_MARIAGE = ["Communauté réduite aux acquêts (régime légal)", "Communauté universelle", "Séparation de biens", "Participation aux acquêts"];
