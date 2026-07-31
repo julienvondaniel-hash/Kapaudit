@@ -725,7 +725,8 @@
     changeCb = onChange;
     formData = data;
     container.innerHTML = "";
-    SECTIONS.forEach(function (sec, idx) {
+    // Rubriques masquées (version « étude patrimoniale ») : cf. HEXA.HIDDEN.
+    SECTIONS.filter(function (sec) { return !window.HEXA || window.HEXA.shows(sec.key); }).forEach(function (sec, idx) {
       var details = el("details", "section");
       if (idx === 0) details.open = true;
       var summary = el("summary", "section-summary");
