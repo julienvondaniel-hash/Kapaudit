@@ -1137,8 +1137,8 @@
     cover(pptx, data);
     advisor(pptx, data);
     if (m.methodologie) methodologie(pptx, data);
-    if (m.contexte) contexte(pptx, data);
-    synthese(pptx, data);
+    if (m.contexte && HEXA.shows("contexte")) contexte(pptx, data);
+    if (HEXA.shows("synthese")) synthese(pptx, data);
 
     HEXA.divider(pptx, { num: 1, kicker: "Section", title: "Découverte", subtitle: "Situation familiale, patrimoniale et revenus" });
     profil(pptx, data);
@@ -1163,13 +1163,12 @@
     HEXA.divider(pptx, { num: 3, kicker: "Section", title: "Objectifs", subtitle: "Priorités du foyer reliées au diagnostic" });
     objectifs(pptx, data);
 
-    HEXA.divider(pptx, { num: 4, kicker: "Section", title: "Préconisations", subtitle: "Solutions argumentées & projections chiffrées" });
-    arbitrageCurrent(pptx, data);
-    suiviPlafonds(pptx, data);
-    preconisationsSlide(pptx, data);
-    donationStrategieSlide(pptx, data);
-    reinvestissementSlide(pptx, data);
-    scenariosSlide(pptx, data);
+    if (HEXA.showsPreco()) {
+      HEXA.divider(pptx, { num: 4, kicker: "Section", title: "Préconisations", subtitle: "Solutions argumentées & projections chiffrées" });
+      if (HEXA.shows("arbitrage")) { arbitrageCurrent(pptx, data); suiviPlafonds(pptx, data); preconisationsSlide(pptx, data); }
+      if (HEXA.shows("donationsEnvisagees")) donationStrategieSlide(pptx, data);
+      if (HEXA.shows("reinvestissements")) { reinvestissementSlide(pptx, data); scenariosSlide(pptx, data); }
+    }
 
     if (m.per) perModule(pptx, data);
     if (m.assuranceVie) avModuleFr(pptx);
@@ -1180,8 +1179,10 @@
     if (m.fcpr) envelopeModule(pptx, "FCPR", HEXA_EDU.fcpr, C.GOLD_DK);
     if (m.sciIs) sciModule(pptx);
 
-    HEXA.divider(pptx, { num: 5, kicker: "Section", title: "Plan d'action", subtitle: "Recommandations chiffrées & calendrier" });
-    planAction(pptx, data);
+    if (HEXA.shows("planAction")) {
+      HEXA.divider(pptx, { num: 5, kicker: "Section", title: "Plan d'action", subtitle: "Recommandations chiffrées & calendrier" });
+      planAction(pptx, data);
+    }
     if (m.suivi) suivi(pptx);
     merci(pptx, data);
 
