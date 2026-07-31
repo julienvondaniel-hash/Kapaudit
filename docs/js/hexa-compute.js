@@ -194,6 +194,7 @@
     var cash = CASH_TYPES;
     var titres = { "PEA": 1, "PEA-PME": 1, "FCPR": 1, "FCPI": 1, "Club Deal": 1, "Contrat de capitalisation": 1 };
     if (a.type === "Assurance-vie") return "Assurance-vie";
+    if (a.type === "PER") return "Épargne retraite";
     if (cash[a.type]) return "Liquidités";
     if (titres[a.type]) return "Valeurs mobilières";
     return "Autres actifs";
@@ -202,7 +203,7 @@
   // Répartition croisée : pour chaque détenteur, la ventilation par type d'actif.
   function assetByHolderType(actif) {
     actif = actif || {};
-    var ORDER = ["Immobilier de jouissance", "Immobilier locatif", "Foncier / non bâti", "Liquidités", "Valeurs mobilières", "Assurance-vie", "Autres actifs"];
+    var ORDER = ["Immobilier de jouissance", "Immobilier locatif", "Foncier / non bâti", "Liquidités", "Valeurs mobilières", "Assurance-vie", "Épargne retraite", "Autres actifs"];
     var biens = (actif.immobilier || []).concat(actif.autres || []);
     var holders = [], cats = [], matrix = {};
     biens.forEach(function (a) {
