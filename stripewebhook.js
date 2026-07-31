@@ -5,7 +5,8 @@
 // via la fonction Postgres record_purchase (clé service_role).
 //
 // IMPORTANT : Stripe exige le CORPS BRUT (non parsé) pour vérifier la signature.
-// On désactive donc le body parser de Vercel et on lit le flux manuellement.
+// On désactive donc le body parser de Vercel (handler.config) et on lit le flux
+// manuellement.
 //
 // Variables d'environnement :
 //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
@@ -19,9 +20,6 @@ const { createClient } = require("@supabase/supabase-js");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-// Ne PAS parser le corps : Stripe vérifie la signature sur les octets bruts.
-module.exports.config = { api: { bodyParser: false } };
-
 function readRawBody(req) {
   return new Promise(function (resolve, reject) {
     const chunks = [];
@@ -31,7 +29,7 @@ function readRawBody(req) {
   });
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== "POST") { res.status(405).end("Méthode non autorisée"); return; }
 
   let event;
@@ -67,4 +65,9 @@ module.exports = async function handler(req, res) {
     console.error("webhook handler error:", e);
     res.status(500).end("Erreur serveur");
   }
-};
+}
+
+// Ne PAS parser le corps : Stripe vérifie la signature sur les octets bruts.
+// (Attaché au handler APRÈS son affectation, sinon la config serait perdue.)
+handler.config = { api: { bodyParser: false } };
+module.exports = handler;
