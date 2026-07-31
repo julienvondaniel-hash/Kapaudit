@@ -33,6 +33,36 @@
     return d;
   }
 
+  // Mode cloud (Supabase) actif ? En mode cloud, Supabase est la SEULE source des
+  // données client : rien n'est persisté dans le navigateur (localStorage).
+  function cloudMode() { return !!(window.HexaCloud && window.HexaCloud.enabled); }
+
+  // Vide récursivement les valeurs en conservant la STRUCTURE : listes → [],
+  // scalaires → "". Base d'un dossier vierge à partir du gabarit d'exemple.
+  function blankValues(v) {
+    if (Array.isArray(v)) return [];
+    if (v && typeof v === "object") { var o = {}; Object.keys(v).forEach(function (k) { o[k] = blankValues(v[k]); }); return o; }
+    return "";
+  }
+  // Clés conservées telles quelles dans un dossier vierge : réglages neutres et
+  // textes standards (l'avertissement légal de « contexte » n'est PAS une saisie client).
+  var EMPTY_KEEP = { contexte: 1, profilPatrimonial: 1, pvParams: 1 };
+
+  // Dossier vierge : même structure que l'exemple mais toutes les données CLIENT
+  // vidées (0 ligne). On conserve l'identité cabinet (doc.advisor*, copyright,
+  // titre) et les textes standards ; on vide le nom du client et la date.
+  function emptyData() {
+    var src = window.HEXA_DEFAULT, d = {};
+    Object.keys(src).forEach(function (k) {
+      if (k === "doc") { d.doc = clone(src.doc); d.doc.client = ""; d.doc.date = ""; }
+      else if (EMPTY_KEEP[k]) { d[k] = clone(src[k]); }
+      else { d[k] = blankValues(src[k]); }
+    });
+    d.modules = {};
+    window.HEXA_MODULES.forEach(function (m) { d.modules[m.id] = m.def; });
+    return d;
+  }
+
   // ------- aperçu du plan (doit refléter l'ordre de hexa-slides.js) -------
   var OUTLINE = [
     { t: "Couverture" }, { t: "Votre conseiller" },
@@ -78,7 +108,10 @@
   function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
 
   // ------- persistance -------
-  function save() { try { localStorage.setItem(LS_KEY, JSON.stringify(state.data)); } catch (e) {} }
+  function save() {
+    if (cloudMode()) return;   // cloud : Supabase = seule source ; hexa-saas gère l'enregistrement
+    try { localStorage.setItem(LS_KEY, JSON.stringify(state.data)); } catch (e) {}
+  }
   function onChange() {
     window.HexaCompute.syncDerived(state.data);
     save(); updateOutline();
@@ -88,7 +121,10 @@
     flagDirty();
     for (var i = 0; i < subscribers.length; i++) { try { subscribers[i](state.data); } catch (e) {} }
   }
-  function flagDirty() { var s = $("saveState"); if (s) { s.textContent = "Enregistré localement ✓"; s.classList.add("saved"); } }
+  function flagDirty() {
+    if (cloudMode()) return;   // cloud : indicateur piloté par hexa-saas (« Enregistré dans le cloud ✓ »)
+    var s = $("saveState"); if (s) { s.textContent = "Enregistré localement ✓"; s.classList.add("saved"); }
+  }
 
   function rebuild() {
     window.HexaForm.build(state.data, $("form"), onChange);
@@ -186,9 +222,27 @@
     reader.readAsText(file);
   }
 
+  // Remplace intégralement le dossier courant (vider / charger l'exemple) et
+  // propage aux abonnés (enregistrement cloud) — contrairement à setData qui sert
+  // à OUVRIR un dossier déjà stocké dans Supabase.
+  function applyLoadedData(obj) {
+    state.data = obj;
+    window.HexaCompute.syncDerived(state.data);
+    save(); flagDirty(); rebuild(); lastPersonsKey = personsKey();
+    for (var i = 0; i < subscribers.length; i++) { try { subscribers[i](state.data); } catch (e) {} }
+  }
+
   function resetDefaults() {
-    if (!confirm("Réinitialiser toutes les données avec l'exemple par défaut ? Vos saisies locales seront perdues.")) return;
-    state.data = defaultData(); save(); rebuild();
+    if (!confirm("Vider le dossier ? Tous les champs seront réinitialisés à vide.")) return;
+    applyLoadedData(emptyData());
+    $("genMsg").textContent = "";
+  }
+
+  // « Charger l'exemple » : remplit le dossier courant avec le jeu de démonstration
+  // (« Monsieur et Madame X »). La démo ne s'affiche plus automatiquement.
+  function loadExample() {
+    if (!confirm("Charger l'exemple « Monsieur et Madame X » ? Le contenu actuel du dossier sera remplacé.")) return;
+    applyLoadedData(defaultData());
     $("genMsg").textContent = "";
   }
 
@@ -198,8 +252,12 @@
     var verEl = document.querySelector(".appbar-titles p");
     if (verEl) verEl.insertAdjacentHTML("beforeend", ' <span style="opacity:.55;font-size:11px;font-weight:600">— build ' + BUILD + "</span>");
     var saved = null;
-    try { saved = JSON.parse(localStorage.getItem(LS_KEY)); } catch (e) {}
-    state.data = (saved && saved.doc) ? saved : defaultData();
+    // Cloud : aucune donnée client en local (on purge un éventuel ancien cache) ;
+    // le dossier réel est chargé depuis Supabase après connexion. Sinon (autonome) :
+    // reprise du cache local. Dans les deux cas, démarrage à VIDE (plus de démo auto).
+    if (cloudMode()) { try { localStorage.removeItem(LS_KEY); } catch (e) {} }
+    else { try { saved = JSON.parse(localStorage.getItem(LS_KEY)); } catch (e) {} }
+    state.data = (saved && saved.doc) ? saved : emptyData();
     if (!state.data.modules) { state.data.modules = {}; window.HEXA_MODULES.forEach(function (m) { state.data.modules[m.id] = m.def; }); }
     window.HexaCompute.syncDerived(state.data);
     applyBranding();
@@ -215,6 +273,7 @@
     $("btnPrint").addEventListener("click", openPrintBooklet);
     $("btnExport").addEventListener("click", exportJSON);
     $("btnReset").addEventListener("click", resetDefaults);
+    $("btnExample").addEventListener("click", loadExample);
     $("fileImport").addEventListener("change", function (e) { if (e.target.files[0]) importJSON(e.target.files[0]); e.target.value = ""; });
     $("btnImport").addEventListener("click", function () { $("fileImport").click(); });
 
@@ -241,13 +300,13 @@
       state.data = obj; window.HexaCompute.syncDerived(state.data);
       save(); rebuild(); lastPersonsKey = personsKey();
     },
-    // Nouveau dossier = modèle par défaut (l'appelant fixe le nom du client).
-    newData: function () { return defaultData(); },
+    // Nouveau dossier = modèle VIERGE (l'appelant fixe le nom du client).
+    newData: function () { return emptyData(); },
     // S'abonner aux modifications (pour l'enregistrement cloud différé).
     subscribe: function (cb) { if (typeof cb === "function") subscribers.push(cb); },
     // Purge le cache local + recharge le modèle (déconnexion : aucune donnée
     // client ne subsiste dans le navigateur).
-    clearLocal: function () { try { localStorage.removeItem(LS_KEY); } catch (e) {} state.data = defaultData(); window.HexaCompute.syncDerived(state.data); rebuild(); lastPersonsKey = personsKey(); }
+    clearLocal: function () { try { localStorage.removeItem(LS_KEY); } catch (e) {} state.data = emptyData(); window.HexaCompute.syncDerived(state.data); rebuild(); lastPersonsKey = personsKey(); }
   };
 
   document.addEventListener("DOMContentLoaded", init);
