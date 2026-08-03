@@ -68,7 +68,7 @@
 
   // Types d'actifs considérés comme « liquidités » (source unique, référencée partout
   // pour classer les liquidités et calculer leur part — évite les divergences).
-  var CASH_TYPES = { "Compte courant": 1, "Compte à terme": 1, "Livret A": 1, "LDD": 1, "LEP": 1, "Livret Jeune": 1, "PEL": 1, "CEL": 1, "Liquidités": 1 };
+  var CASH_TYPES = { "Compte courant": 1, "Compte à terme": 1, "Livret A": 1, "LDD": 1, "LDDS": 1, "LEP": 1, "Livret Jeune": 1, "Livret B": 1, "PEL": 1, "CEL": 1, "Liquidités": 1 };
 
   // Taux fiscaux centralisés — SOURCE UNIQUE de vérité (ne pas redéfinir « en dur »
   // dans les fiches). Prélèvements sociaux : la LFSS 2026 (adoptée le 16/12/2025)
@@ -192,9 +192,10 @@
       return "Immobilier de jouissance";
     }
     var cash = CASH_TYPES;
-    var titres = { "PEA": 1, "PEA-PME": 1, "FCPR": 1, "FCPI": 1, "Club Deal": 1, "Contrat de capitalisation": 1, "FIP": 1, "FIP Corse": 1, "FIP outre-mer": 1, "GFF": 1, "GFV": 1, "GFA": 1 };
+    var titres = { "PEA": 1, "PEA-PME": 1, "FCPR": 1, "FCPI": 1, "Club Deal": 1, "Contrat de capitalisation": 1, "FIP": 1, "FIP Corse": 1, "FIP outre-mer": 1, "GFF": 1, "GFV": 1, "GFA": 1, "OPCVM (FCP/SICAV)": 1, "SCPI": 1, "OPCI": 1, "PEE": 1, "PEI": 1, "Produits structurés": 1, "Financement participatif": 1 };
+    var retraite = { "PER": 1, "PERCO": 1, "PERECO": 1, "PER Obligatoire": 1, "PERP": 1, "Madelin retraite": 1 };
     if (a.type === "Assurance-vie") return "Assurance-vie";
-    if (a.type === "PER") return "Épargne retraite";
+    if (retraite[a.type]) return "Épargne retraite";
     if (cash[a.type]) return "Liquidités";
     if (titres[a.type]) return "Valeurs mobilières";
     return "Autres actifs";
