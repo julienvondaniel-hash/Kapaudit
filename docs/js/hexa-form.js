@@ -29,7 +29,7 @@
     brut: "Actif brut", passif: "Passif", net: "Actif net", partImmo: "Part immobilière",
     endettement: "Taux d'endettement", comment: "Commentaire",
     immobilier: "Patrimoine immobilier", autres: "Autres actifs (financiers & divers)",
-    classe: "Classe", type: "Type", categorie: "Catégorie", valeur: "Valeur (€)", dateAcquisition: "Date d'acquisition", prixAcquisition: "Prix d'acquisition (€)",
+    classe: "Classe", regimeLocatif: "Régime locatif", type: "Type", categorie: "Catégorie", valeur: "Valeur (€)", dateAcquisition: "Date d'acquisition", prixAcquisition: "Prix d'acquisition (€)",
     fraisAcquisition: "Frais d'acq. réels (€) (vide = forfait 7,5 %)", travaux: "Travaux réels (€) (vide = forfait 15 % si > 5 ans)", fraisCession: "Frais de cession (€)",
     forfaits: "Forfaits d'acquisition (art. 150 VB : frais 7,5 % + travaux 15 %)",
     proprietaire: "Propriétaire", quote: "Quote-part %", droit: "Droit", ageUsufruitier: "Âge usufruitier",
@@ -114,6 +114,7 @@
     situationMaritale: ["Marié(e)s", "Pacsés", "En concubinage", "Célibataire", "Veuf(ve)"],
     droit: ["PP", "NP", "UF"],
     classe: ["Résidence principale", "Résidence secondaire", "Investissement locatif", "Foncier non bâti"],
+    regimeLocatif: ["Nu (revenus fonciers)", "Meublé (LMNP / LMP)", "SCI à l'IS"],
     typeCredit: ["Immobilier", "Consommation"],
     forfaits: ["Oui", "Non"],
     activitePro: ["Salarié(e)", "Fonctionnaire", "Indépendant / TNS", "Chef d'entreprise", "Profession libérale", "Retraité(e)", "Sans activité", "Étudiant(e)", "Autre"],
@@ -165,6 +166,8 @@
   var CONDITIONAL = {
     regime: { on: "situationMaritale", when: function (s) { return s === "Marié(e)s" || s === "Pacsés"; }, na: "— sans objet" },
     ageUsufruitier: { on: "droit", when: function (d) { return d === "NP"; }, na: "—" },
+    // Régime locatif : pertinent uniquement pour un bien « Investissement locatif ».
+    regimeLocatif: { on: "classe", when: function (c) { return c === "Investissement locatif"; }, na: "—" },
     // Filiation : pertinente uniquement pour les enfants (identifie les enfants d'un 1er lit)
     filiation: { on: "qualite", when: function (q) { return q === "Enfant"; }, na: "—" },
     statutFiscal: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
@@ -177,7 +180,7 @@
     beneficiaires: { on: "type", when: function (t) { return t === "Assurance-vie" || t === "PER"; }, na: "—" }
   };
   // Champs dont la modification re-rend le tableau (pilotent des champs dépendants)
-  var CTRL_FIELDS = { situationMaritale: 1, droit: 1, type: 1, qualite: 1, donateur: 1 };
+  var CTRL_FIELDS = { situationMaritale: 1, droit: 1, type: 1, qualite: 1, donateur: 1, classe: 1 };
   function adjustDependents(item, field) {
     if (field === "situationMaritale") { var o = regimeOptionsFor(item.situationMaritale); item.regime = o ? (o.indexOf(item.regime) >= 0 ? item.regime : o[0]) : ""; }
     else if (field === "qualite") { item.filiation = item.qualite === "Enfant" ? (item.filiation || "Enfant du couple") : ""; }
@@ -277,7 +280,7 @@
     switch (key) {
       case "revenus": return isBudget ? { poste: REVENU_POSTES[0], libelle: "", montants: {} } : { libelle: "", montant: "" };
       case "charges": return isBudget ? { poste: CHARGE_POSTES[0], libelle: "", montants: {} } : { libelle: "", montant: "" };
-      case "immobilier": return { designation: "", classe: ENUMS.classe[0], type: IMMO_TYPES[0], valeur: "", dateAcquisition: "", prixAcquisition: "", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" };
+      case "immobilier": return { designation: "", classe: ENUMS.classe[0], regimeLocatif: "Nu (revenus fonciers)", type: IMMO_TYPES[0], valeur: "", dateAcquisition: "", prixAcquisition: "", fraisAcquisition: "", travaux: "", fraisCession: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "" };
       case "autres": return { type: AUTRES_TYPES[0], designation: "", valeur: "", versements: "", proprietaire: "Communauté", quote: "100", droit: "PP", ageUsufruitier: "", assure: "", beneficiaires: "" };
       case "passifs": return { designation: "", crd: "", dateFin: "", mensualite: "", taux: "", typeCredit: ENUMS.typeCredit[0], rattachement: "" };
       case "donations": return { donateur: "", beneficiaire: "", valeur: "", type: DONATION_TYPES[0], date: "" };
