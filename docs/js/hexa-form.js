@@ -121,7 +121,29 @@
     enveloppe: ENVELOPPES
   };
   var IMMO_TYPES = ["Maison", "Appartement", "Immeuble de rapport", "Parking", "Foncier non bâti", "Château", "Manoir", "Étang", "Forêt", "Terre agricole", "Péniche", "Autre"];
-  var AUTRES_TYPES = ["Liquidités", "Compte courant", "Compte à terme", "Livret A", "LDD", "LEP", "Livret Jeune", "PEL", "CEL", "PEA", "PEA-PME", "Compte-titres", "Assurance-vie", "PER", "Contrat de capitalisation", "FCPR", "FCPI", "FIP", "FIP Corse", "FIP outre-mer", "GFF", "GFV", "GFA", "Club Deal", "autre"];
+  var AUTRES_TYPES = [
+    // Liquidités & épargne réglementée
+    "Liquidités", "Compte courant", "Compte à terme", "Livret A", "LDDS", "LEP", "Livret Jeune", "Livret B", "PEL", "CEL",
+    // Valeurs mobilières
+    "PEA", "PEA-PME", "Compte-titres", "OPCVM (FCP/SICAV)",
+    // Assurance & capitalisation
+    "Assurance-vie", "Contrat de capitalisation",
+    // Épargne retraite (individuelle & entreprise)
+    "PER", "PERCO", "PERECO", "PER Obligatoire", "PERP", "Madelin retraite",
+    // Épargne salariale
+    "PEE", "PEI",
+    // Pierre-papier
+    "SCPI", "OPCI",
+    // Capital-investissement & défiscalisation
+    "FCPR", "FCPI", "FIP", "FIP Corse", "FIP outre-mer", "GFF", "GFV", "GFA", "Club Deal",
+    // Autres placements
+    "Produits structurés", "Financement participatif", "Cryptoactifs", "Or / métaux précieux",
+    "autre"
+  ];
+  // Types affichant le champ « versements » (primes/versements cumulés) et ceux
+  // affichant « assuré & bénéficiaires » (clause bénéficiaire en cas de décès).
+  var TYPES_VERSEMENTS = ["PEA", "PEA-PME", "Assurance-vie", "Contrat de capitalisation", "PER", "PERCO", "PERECO", "PER Obligatoire", "PERP", "Madelin retraite", "PEE", "PEI"];
+  var TYPES_BENEFICIAIRE = ["Assurance-vie", "PER", "PERCO", "PERECO", "PER Obligatoire", "PERP", "Madelin retraite"];
   var DONATION_TYPES = ["Don manuel (somme d'argent)", "Avance successorale (rapportable)", "Hors part successorale", "Donation-partage", "Don familial de somme d'argent"];
   var SITUATIONS = ENUMS.situationMaritale;
   var REGIME_MARIAGE = ["Communauté réduite aux acquêts (régime légal)", "Communauté universelle", "Séparation de biens", "Participation aux acquêts"];
@@ -173,11 +195,11 @@
     statutFiscal: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
     prevoyanceDeces: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
     prevoyanceIncapInval: { on: "qualite", when: function (q) { return q !== "Enfant"; }, na: "—" },
-    // Versements : PEA / PEA-PME (capacité de versement) + assurance-vie / capitalisation / PER (primes versées)
-    versements: { on: "type", when: function (t) { return t === "PEA" || t === "PEA-PME" || t === "Assurance-vie" || t === "Contrat de capitalisation" || t === "PER"; }, na: "—" },
-    // Assuré & bénéficiaires : assurance-vie et PER (clause bénéficiaire en cas de décès)
-    assure: { on: "type", when: function (t) { return t === "Assurance-vie" || t === "PER"; }, na: "—" },
-    beneficiaires: { on: "type", when: function (t) { return t === "Assurance-vie" || t === "PER"; }, na: "—" }
+    // Versements (primes/versements cumulés) et assuré/bénéficiaires (clause en cas de
+    // décès) : listes centralisées TYPES_VERSEMENTS / TYPES_BENEFICIAIRE (cf. ci-dessus).
+    versements: { on: "type", when: function (t) { return TYPES_VERSEMENTS.indexOf(t) >= 0; }, na: "—" },
+    assure: { on: "type", when: function (t) { return TYPES_BENEFICIAIRE.indexOf(t) >= 0; }, na: "—" },
+    beneficiaires: { on: "type", when: function (t) { return TYPES_BENEFICIAIRE.indexOf(t) >= 0; }, na: "—" }
   };
   // Champs dont la modification re-rend le tableau (pilotent des champs dépendants)
   var CTRL_FIELDS = { situationMaritale: 1, droit: 1, type: 1, qualite: 1, donateur: 1, classe: 1 };
@@ -186,8 +208,8 @@
     else if (field === "qualite") { item.filiation = item.qualite === "Enfant" ? (item.filiation || "Enfant du couple") : ""; }
     else if (field === "droit") { if (item.droit !== "NP") item.ageUsufruitier = ""; }
     else if (field === "type") {
-      if (["PEA", "PEA-PME", "Assurance-vie", "Contrat de capitalisation", "PER"].indexOf(item.type) < 0) item.versements = "";
-      if (item.type !== "Assurance-vie" && item.type !== "PER") { item.assure = ""; item.beneficiaires = ""; }
+      if (TYPES_VERSEMENTS.indexOf(item.type) < 0) item.versements = "";
+      if (TYPES_BENEFICIAIRE.indexOf(item.type) < 0) { item.assure = ""; item.beneficiaires = ""; }
     }
     else if (field === "donateur") {
       // si le bénéficiaire courant devient invalide (= donateur), le réinitialiser
