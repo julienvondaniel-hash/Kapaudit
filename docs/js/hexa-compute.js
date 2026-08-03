@@ -200,6 +200,15 @@
     return "Autres actifs";
   }
 
+  // Un bien locatif n'est imposé en REVENUS FONCIERS que s'il est loué NU (ou régime
+  // non renseigné, hypothèse par défaut). Le meublé (BIC — LMNP/LMP) et la SCI à l'IS
+  // en sont exclus : ce n'est pas parce qu'il y a des loyers qu'ils sont fonciers.
+  function hasLocatifFoncier(immo) {
+    return (immo || []).some(function (a) {
+      return a.classe === "Investissement locatif" && !/meubl|SCI/i.test(a.regimeLocatif || "");
+    });
+  }
+
   // Répartition croisée : pour chaque détenteur, la ventilation par type d'actif.
   function assetByHolderType(actif) {
     actif = actif || {};
@@ -741,7 +750,7 @@
       if (fi.dette > 0) ifiAdj.push("dettes immobilières déduites");
       vig.push("Assujetti à l'IFI — assiette nette " + formatEur(fi.nette) + (ifiAdj.length ? " (" + ifiAdj.join(", ") + ")" : "") + ", IFI estimé ≈ " + formatEur(fi.montant));
     }
-    if (hasLocatif) vig.push("Revenus fonciers fortement fiscalisés (TMI + prélèvements sociaux)");
+    if (hasLocatifFoncier(immo)) vig.push("Revenus fonciers fortement fiscalisés (TMI + prélèvements sociaux)");
     if (liquidPct < 5) vig.push("Liquidité limitée (" + formatPctVal(liquidPct) + " du patrimoine)");
     if (autresPct < 20) vig.push("Diversification financière insuffisante (" + formatPctVal(autresPct) + ")");
     if (enfants >= 1) vig.push("Transmission à anticiper : " + enfants + " enfant" + (enfants > 1 ? "s" : "") + (enfants > 1 ? ", biens de valeurs potentiellement inégales" : ""));
@@ -793,15 +802,15 @@
     var actif = (data && data.actif) || {}, immo = actif.immobilier || [], autres = actif.autres || [];
     var membres = (data && data.foyer && data.foyer.membres) || [];
     var enfants = membres.filter(function (m) { return m.qualite === "Enfant"; }).length;
-    var hasLocatif = immo.some(function (a) { return a.classe === "Investissement locatif"; });
+    var hasFoncier = hasLocatifFoncier(immo);
     var cash = CASH_TYPES;
     var liquid = 0; autres.forEach(function (a) { if (cash[a.type]) liquid += parseNum(a.valeur); });
     var liquidPct = t.brut ? liquid / t.brut * 100 : 0, autresPct = t.brut ? t.autres / t.brut * 100 : 0;
     var r = [];
     if (t.partImmoPct >= 65) r.push({ risk: "Concentration immobilière", level: "Élevé", desc: formatPctVal(t.partImmoPct) + " de l'actif sur une seule classe : risque de liquidité et de marché" });
     else if (t.partImmoPct >= 45) r.push({ risk: "Concentration immobilière", level: "Moyen", desc: formatPctVal(t.partImmoPct) + " de l'actif en immobilier" });
-    if (ifi(data).assujetti) r.push({ risk: "Pression fiscale (IFI" + (hasLocatif ? " + IR foncier" : "") + ")", level: hasLocatif ? "Élevé" : "Moyen", desc: "Imposition récurrente du patrimoine" + (hasLocatif ? " et des loyers (TMI + prélèvements sociaux)" : "") });
-    else if (hasLocatif) r.push({ risk: "Fiscalité des revenus fonciers", level: "Moyen", desc: "Loyers fortement fiscalisés (TMI + prélèvements sociaux)" });
+    if (ifi(data).assujetti) r.push({ risk: "Pression fiscale (IFI" + (hasFoncier ? " + IR foncier" : "") + ")", level: hasFoncier ? "Élevé" : "Moyen", desc: "Imposition récurrente du patrimoine" + (hasFoncier ? " et des loyers (TMI + prélèvements sociaux)" : "") });
+    else if (hasFoncier) r.push({ risk: "Fiscalité des revenus fonciers", level: "Moyen", desc: "Loyers fortement fiscalisés (TMI + prélèvements sociaux)" });
     if (enfants >= 1) r.push({ risk: "Transmission / indivision", level: enfants >= 2 ? "Moyen" : "Modéré", desc: enfants + " enfant" + (enfants > 1 ? "s" : "") + " : transmission à organiser pour éviter le blocage successoral" });
     if (liquidPct < 5) r.push({ risk: "Liquidité de court terme", level: "Modéré", desc: "Épargne disponible limitée (" + formatPctVal(liquidPct) + ") hors actifs immobiliers" });
     if (autresPct < 20) r.push({ risk: "Diversification financière", level: "Modéré", desc: "Faible exposition aux marchés financiers (" + formatPctVal(autresPct) + ")" });
